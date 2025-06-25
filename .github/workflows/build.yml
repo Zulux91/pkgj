@@ -68,7 +68,7 @@ jobs:
           if [ -f "$file" ]; then
             mv "$file" ./pkgj.vpk
           else
-            echo "❌ No .vpk file was found."
+            echo "❌ No .vpk file was found. Aborting."
             exit 1
           fi
 
