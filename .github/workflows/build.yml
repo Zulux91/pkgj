@@ -62,8 +62,15 @@ jobs:
         with:
           name: pkgj.vpk
 
-      - name: Move VPK to root
-        run: mv pkgj.vpk/pkgj.vpk .
+      - name: Move VPK to root (fallback compatible)
+        run: |
+          file=$(find . -name "*.vpk" -type f | head -n 1)
+          if [ -f "$file" ]; then
+            mv "$file" ./pkgj.vpk
+          else
+            echo "❌ No .vpk file was found."
+            exit 1
+          fi
 
       - uses: svenstaro/upload-release-action@v2
         with:
