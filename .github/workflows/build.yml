@@ -8,9 +8,9 @@ on:
         required: true
         default: 'v0.58'
       branch:
-        description: 'Rama a usar (ej: main, dev, last...)'
+        description: 'Rama a usar (ej: master, main, dev, last...)'
         required: false
-        default: 'main'
+        default: 'master'
 jobs:
   build:
     runs-on: ubuntu-latest
