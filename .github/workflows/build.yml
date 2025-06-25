@@ -2,6 +2,11 @@ name: build
 run-name: Build
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versión a publicar (ej: v1.2.3)'
+        required: true
+        default: 'v0.58'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,7 +38,7 @@ jobs:
           path: ci/build/pkgj.vpk
   publish:
     needs: build
-    if: ${{ startsWith(github.event.ref, 'refs/tags/v') }}
+    if: ${{ github.event_name == 'workflow_dispatch' || startsWith(github.event.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,25 +47,24 @@ jobs:
       - name: Remove previous version
         run: |
           rm *.vpk
-          refname=${{ github.ref_name }}
-          echo -n ${refname:1} > version
+          echo -n ${{ github.event.inputs.version }} | sed 's/^v//' > version
       - uses: actions/download-artifact@v4
         with:
           name: pkgj.vpk
       - uses: svenstaro/upload-release-action@v2
         with:
           file: pkgj.vpk
-          release_name: "PKGJ ${{ github.ref_name }}"
-          prerelease: ${{ contains(github.ref_name, 'beta') }}
+          release_name: "PKGJ ${{ github.event.inputs.version }}"
+          prerelease: ${{ contains(github.event.inputs.version, 'beta') }}
       - name: Prepare new version
         run: |
           git config --global user.name "GitHub actions"
           git config --global user.email "actions@github.com"
 
-          mv pkgj.vpk pkgj-${{ github.ref_name }}.vpk
+          mv pkgj.vpk pkgj-${{ github.event.inputs.version }}.vpk
           git add -u
-          git add pkgj-${{ github.ref_name }}.vpk
-          git commit -m "Push ${{ github.ref_name }}"
+          git add pkgj-${{ github.event.inputs.version }}.vpk
+          git commit -m "Push ${{ github.event.inputs.version }}"
       - name: Upload new version
-        if: ${{ !contains(github.ref_name, 'beta') }}
+        if: ${{ !contains(github.event.inputs.version, 'beta') }}
         run: git push origin last
