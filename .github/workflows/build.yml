@@ -7,6 +7,10 @@ on:
         description: 'Versión a publicar (ej: v1.2.3)'
         required: true
         default: 'v0.58'
+      branch:
+        description: 'Rama a usar (ej: main, dev, last...)'
+        required: false
+        default: 'main'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,7 +47,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: last
+          ref: ${{ github.event.inputs.branch }}
       - name: Remove previous version
         run: |
           rm *.vpk
