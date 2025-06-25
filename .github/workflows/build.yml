@@ -71,4 +71,4 @@ jobs:
           git commit -m "Push ${{ github.event.inputs.version }}"
       - name: Upload new version
         if: ${{ !contains(github.event.inputs.version, 'beta') }}
-        run: git push origin last
+        run: git push origin ${{ github.event.inputs.branch }}
