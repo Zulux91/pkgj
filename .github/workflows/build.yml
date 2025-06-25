@@ -62,11 +62,13 @@ jobs:
         with:
           name: pkgj.vpk
 
-      - name: Move VPK to root (fallback compatible)
+      - name: Move VPK to root (robusto y sin colisión)
         run: |
           file=$(find . -name "*.vpk" -type f | head -n 1)
           if [ -f "$file" ]; then
-            mv "$file" ./pkgj.vpk
+            if [ "$file" != "./pkgj.vpk" ]; then
+              mv "$file" ./pkgj.vpk
+            fi
           else
             echo "❌ No .vpk file was found. Aborting."
             exit 1
