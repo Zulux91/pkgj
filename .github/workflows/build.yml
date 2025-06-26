@@ -59,6 +59,23 @@ jobs:
           find . -name "*.vpk" -type f -delete
           echo -n ${{ github.event.inputs.version }} | sed 's/^v//' > version
 
+      - name: Commit cleanup (before downloading new artifacts)
+        run: |
+          git config --global user.name "GitHub actions"
+          git config --global user.email "actions@github.com"
+
+          branch="${{ github.event.inputs.branch }}"
+          git fetch origin $branch || true
+          git checkout -B "$branch"
+
+          # Verificar si hay cambios para commitear (archivos eliminados + version actualizada)
+          if [[ -n $(git status --porcelain) ]]; then
+            git add -A
+            git commit -m "Clean compiled files and update version to ${{ github.event.inputs.version }}"
+          else
+            echo "No changes to commit"
+          fi
+
       - uses: actions/download-artifact@v4
         with:
           name: pkgj.vpk
@@ -80,23 +97,6 @@ jobs:
           file: pkgj.vpk
           release_name: "PKGJ ${{ github.event.inputs.version }}"
           prerelease: ${{ contains(github.event.inputs.version, 'beta') }}
-
-      - name: Update version in repository
-        run: |
-          git config --global user.name "GitHub actions"
-          git config --global user.email "actions@github.com"
-
-          branch="${{ github.event.inputs.branch }}"
-          git fetch origin $branch || true
-          git checkout -B "$branch"
-
-          # Verificar si hay cambios para commitear
-          if [[ -n $(git status --porcelain) ]]; then
-            git add -A
-            git commit -m "Clean compiled files and update version to ${{ github.event.inputs.version }}"
-          else
-            echo "No changes to commit"
-          fi
 
       - name: Push version update
         if: ${{ !contains(github.event.inputs.version, 'beta') }}
