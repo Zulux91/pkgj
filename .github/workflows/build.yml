@@ -95,6 +95,7 @@ jobs:
       - uses: svenstaro/upload-release-action@v2
         with:
           file: pkgj.vpk
+          tag: ${{ github.event.inputs.version }}
           release_name: "PKGJ ${{ github.event.inputs.version }}"
           prerelease: ${{ contains(github.event.inputs.version, 'beta') }}
 
